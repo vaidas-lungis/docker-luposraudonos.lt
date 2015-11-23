@@ -1,0 +1,28 @@
+wordpress:
+  image: wordpress:fpm
+  working_dir: /var/www/html
+  links:
+    - db:mysql
+  ports:
+    - "9000:9000"
+  env_file:
+    - "./docker/wordpress/wordpress.env"
+  volumes:
+    - "./wordpress/wp-content/:/var/www/html/wp-content"
+
+db:
+  image: mariadb
+  env_file:
+    - "./docker/db/db.env"
+  volumes:
+    - "./docker/db/import:/docker-entrypoint-initdb.d/"
+    - "./docker/db/config:/etc/mysql/conf.d"
+
+web_server:
+  build: "./docker/nginx"
+  ports:
+    - "80:80"
+  links:
+    - wordpress
+  volumes_from:
+    - wordpress
